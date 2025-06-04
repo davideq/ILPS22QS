@@ -1,0 +1,40 @@
+#######################################
+# Syntax Coloring Map For LPS22DF
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+ILPS22QSSensor	KEYWORD1
+ILPS22QSStatusTypeDef KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin KEYWORD2
+end KEYWORD2
+ReadID KEYWORD2
+Get_Init_Status KEYWORD2
+Enable KEYWORD2
+Disable KEYWORD2
+GetOutputDataRate KEYWORD2
+SetOutputDataRate KEYWORD2
+GetPressure KEYWORD2
+Get_Press_DRDY_Status KEYWORD2
+GetTemperature KEYWORD2
+Get_Temp_DRDY_Status KEYWORD2
+Read_Reg KEYWORD2
+Write_Reg KEYWORD2
+Set_One_Shot KEYWORD2
+Get_One_Shot_Status KEYWORD2
+Set_AVG KEYWORD2
+Set_LPF KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+ILPS22QS_OK	LITERAL1
+ILPS22QS_ERROR	LITERAL1
