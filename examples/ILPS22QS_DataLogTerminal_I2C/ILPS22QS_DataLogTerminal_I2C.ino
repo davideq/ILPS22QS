@@ -1,5 +1,5 @@
 /*
-   @file    ILPS22QS_DataLogTerminal.ino
+   @file    ILPS22QS_DataLogTerminal_I2C.ino
    @author  STMicroelectronics
    @brief   Example to use the ILPS22QS absolute digital output barometer
  *******************************************************************************
