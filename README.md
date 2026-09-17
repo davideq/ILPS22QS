@@ -17,28 +17,28 @@ For SPI it is then required to create a SPI interface before accessing to the se
 
 An instance can be created and enabled when the I2C bus is used following the procedure below:  
 
-   ILPS22QSSensor sensor(&dev_i2c);
+    ILPS22QSSensor sensor(&dev_i2c);
     sensor.begin();
     sensor.Enable();
 
-    An instance can be created and enabled when the I3C bus is used with SETDASA:
+An instance can be created and enabled when the I3C bus is used with SETDASA:
 
-        ILPS22QSSensor sensor(&I3C, ILPS22QS_I3C_ADD);
-        I3C.begin(I3C_SDA, I3C_SCL, 1000000U);
-        I3C.resetDynamicAddresses();
-        I3C.assignDynamicAddress(sensor.getStaticAddress(), 0x30);
-        sensor.begin(0x30);
-        sensor.Enable();
+    ILPS22QSSensor sensor(&I3C, ILPS22QS_I3C_ADD);
+    I3C.begin(I3C_SDA, I3C_SCL, 1000000U);
+    I3C.resetDynamicAddresses();
+    I3C.assignDynamicAddress(sensor.getStaticAddress(), 0x30);
+    sensor.begin(0x30);
+    sensor.Enable();
 
 An instance can be created and enabled when the SPI bus is used following the procedure below:  
 
-   ILPS22QSSensor sensor(&dev_spi, CS_PIN);
+    ILPS22QSSensor sensor(&dev_spi, CS_PIN);
     sensor.begin();
     sensor.Enable();
 
 The access to the sensor values is done as explained below:  
 
-  Read pressure and temperature.  
+Read pressure and temperature.  
 
     float pressure;
     float temperature;
