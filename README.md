@@ -30,6 +30,17 @@ An instance can be created and enabled when the I3C bus is used with SETDASA:
     sensor.begin(0x30);
     sensor.Enable();
 
+An instance can be created and enabled when the I3C bus is used with ENTDAA (dynamic address discovery):
+
+    ILPS22QSSensor sensor(&I3C);
+    I3C.begin(I3C_SDA, I3C_SCL, 1000000U);
+    I3C.resetDynamicAddresses();
+    I3C.discover(devices, 8, &found);
+    // find dynAddr by matching ILPS22QS_I3C_PID in discovered devices
+    sensor.begin(dynAddr);
+    I3C.setClock(12500000);
+    sensor.Enable();
+
 An instance can be created and enabled when the SPI bus is used following the procedure below:  
 
     ILPS22QSSensor sensor(&dev_spi, CS_PIN);
