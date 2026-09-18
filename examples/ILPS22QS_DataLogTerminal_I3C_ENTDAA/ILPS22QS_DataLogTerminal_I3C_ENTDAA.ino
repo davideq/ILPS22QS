@@ -29,12 +29,24 @@ void setup()
     while (1) {}
   }
 
+  uint8_t ilpDynAddr = 0U;
+
   for (size_t index = 0; index < found; ++index) {
-    if (sensor.begin(devices[index].dynAddr) == ILPS22QS_OK) {
+    Serial.println(devices[index].pid, HEX);
+    if (devices[index].pid == ILPS22QS_I3C_PID) {
+      ilpDynAddr = devices[index].dynAddr;
+      Serial.print("ilpDynAddr=");
+      Serial.println(ilpDynAddr, HEX);
       break;
     }
   }
-  if (sensor.getDynAddress() == 0U) {
+
+  if (ilpDynAddr == 0U) {
+    Serial.println("ILPS22QS not found");
+    while (1) {}
+  }
+  if (sensor.begin(ilpDynAddr) != ILPS22QS_OK) {
+    Serial.println("sensor.begin() failed");
     while (1) {}
   }
   if (!I3C.setClock(12500000)) {

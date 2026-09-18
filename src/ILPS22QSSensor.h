@@ -67,6 +67,8 @@
 /* Defines -------------------------------------------------------------------*/
 #if defined(I3C_SUPPORTED)
   #define ILPS22QS_I3C_ADD ((uint8_t)(ILPS22QS_I2C_ADD >> 1))
+
+  static const uint64_t ILPS22QS_I3C_PID = 0x020800B4100BULL;
 #endif
 
 /* Typedefs ------------------------------------------------------------------*/
