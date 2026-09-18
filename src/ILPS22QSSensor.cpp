@@ -2,8 +2,8 @@
  ******************************************************************************
  * @file    ILPS22QSSensor.cpp
  * @author  STMicroelectronics
- * @version V1.0.0
- * @date    21 May 2025
+ * @version V1.1.0
+ * @date    September 2026
  * @brief   Implementation of a ILPS22QS sensor.
  ******************************************************************************
  * @attention
@@ -53,6 +53,10 @@ ILPS22QSSensor::ILPS22QSSensor(TwoWire *i2c, uint8_t address) : dev_i2c(i2c), ad
   reg_ctx.read_reg = ILPS22QS_io_read;
   reg_ctx.handle = (void *)this;
   dev_spi = NULL;
+  bus_type = ILPS22QS_I2C_BUS;
+#if defined(I3C_SUPPORTED)
+  dev_i3c = NULL;
+#endif
   is_initialized = 0;
   is_enabled = 0;
 }
@@ -68,21 +72,62 @@ ILPS22QSSensor::ILPS22QSSensor(SPIClass *spi, int cs_pin, uint32_t spi_speed) : 
   reg_ctx.read_reg = ILPS22QS_io_read;
   reg_ctx.handle = (void *)this;
   dev_i2c = NULL;
+  bus_type = ILPS22QS_SPI_4WIRES_BUS;
+#if defined(I3C_SUPPORTED)
+  dev_i3c = NULL;
+#endif
   is_initialized = 0;
   is_enabled = 0;
 }
+
+#if defined(I3C_SUPPORTED)
+ILPS22QSSensor::ILPS22QSSensor(I3CBus *i3c, uint8_t static_addr7) : dev_i3c(i3c), address(static_addr7), i3c_static7(static_addr7), i3c_dyn7(0)
+{
+  reg_ctx.write_reg = ILPS22QS_io_write;
+  reg_ctx.read_reg = ILPS22QS_io_read;
+  reg_ctx.handle = (void *)this;
+  dev_i2c = NULL;
+  dev_spi = NULL;
+  bus_type = ILPS22QS_I3C_BUS;
+  is_initialized = 0;
+  is_enabled = 0;
+}
+
+uint8_t ILPS22QSSensor::getStaticAddress() const
+{
+  return i3c_static7;
+}
+
+uint8_t ILPS22QSSensor::getDynAddress() const
+{
+  return i3c_dyn7;
+}
+#endif
 
 /**
  * @brief  Configure the sensor in order to be used
  * @retval 0 in case of success, an error code otherwise
  */
-ILPS22QSStatusTypeDef ILPS22QSSensor::begin()
+ILPS22QSStatusTypeDef ILPS22QSSensor::begin(uint8_t new_address)
 {
   if (dev_spi) {
     // Configure CS pin
     pinMode(cs_pin, OUTPUT);
     digitalWrite(cs_pin, HIGH);
   }
+#if defined(I3C_SUPPORTED)
+  if (dev_i3c) {
+    uint8_t id;
+    if (new_address < 0x08 || new_address > 0x77) {
+      return ILPS22QS_ERROR;
+    }
+    address = new_address;
+    i3c_dyn7 = new_address;
+    if (ReadID(&id) != ILPS22QS_OK || id != ILPS22QS_ID) {
+      return ILPS22QS_ERROR;
+    }
+  }
+#endif
   if (is_initialized == 0U) {
     if (Initialize() != ILPS22QS_OK) {
       return ILPS22QS_ERROR;

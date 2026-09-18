@@ -2,8 +2,8 @@
  ******************************************************************************
  * @file    ILPS22QSSensor.h
  * @author  STMicroelectronics
- * @version V1.0.0
- * @date    21 May 2025
+ * @version V1.1.0
+ * @date    September 2026
  * @brief   Abstract Class of a ILPS22QS sensor.
  ******************************************************************************
  * @attention
@@ -54,8 +54,23 @@
 #include "SPI.h"
 #include "ilps22qs_reg.h"
 
+#if (defined(I3C1_BASE) || defined(I3C2_BASE)) && !defined(I3C_SUPPORTED)
+  #define I3C_SUPPORTED
+  #include "I3C.h"
+#endif
+
+#define ILPS22QS_I2C_BUS                     0U
+#define ILPS22QS_SPI_4WIRES_BUS              1U
+#define ILPS22QS_SPI_3WIRES_BUS              2U
+#define ILPS22QS_I3C_BUS                     3U
 
 /* Defines -------------------------------------------------------------------*/
+#if defined(I3C_SUPPORTED)
+  #define ILPS22QS_I3C_ADD ((uint8_t)(ILPS22QS_I2C_ADD >> 1))
+
+  static const uint64_t ILPS22QS_I3C_PID = 0x020800B4100BULL;
+#endif
+
 /* Typedefs ------------------------------------------------------------------*/
 
 typedef enum {
@@ -93,9 +108,16 @@ class ILPS22QSSensor {
   public:
     ILPS22QSSensor(TwoWire *i2c, uint8_t address = ILPS22QS_I2C_ADD);
     ILPS22QSSensor(SPIClass *spi, int cs_pin, uint32_t spi_speed = 2000000);
-    ILPS22QSStatusTypeDef begin();
+#if defined(I3C_SUPPORTED)
+    ILPS22QSSensor(I3CBus *i3c, uint8_t static_addr7 = 0);
+#endif
+    ILPS22QSStatusTypeDef begin(uint8_t new_address = 0);
     ILPS22QSStatusTypeDef end();
     ILPS22QSStatusTypeDef ReadID(uint8_t *Id);
+#if defined(I3C_SUPPORTED)
+    uint8_t getStaticAddress() const;
+    uint8_t getDynAddress() const;
+#endif
     ILPS22QSStatusTypeDef Get_Init_Status(uint8_t *Status);
     ILPS22QSStatusTypeDef Enable();
     ILPS22QSStatusTypeDef Disable();
@@ -146,6 +168,13 @@ class ILPS22QSSensor {
 
         return 0;
       }
+#if defined(I3C_SUPPORTED)
+      if (dev_i3c) {
+        if (dev_i3c->readRegBuffer(address, RegisterAddr, pBuffer, NumByteToRead) == 0) {
+          return 0;
+        }
+      }
+#endif
       return 1;
     }
 
@@ -181,6 +210,13 @@ class ILPS22QSSensor {
         dev_i2c->endTransmission(true);
         return 0;
       }
+#if defined(I3C_SUPPORTED)
+      if (dev_i3c) {
+        if (dev_i3c->writeRegBuffer(address, RegisterAddr, pBuffer, NumByteToWrite) == 0) {
+          return 0;
+        }
+      }
+#endif
       return 1;
     }
 
@@ -193,8 +229,12 @@ class ILPS22QSSensor {
     /* Helper classes. */
     TwoWire  *dev_i2c;
     SPIClass *dev_spi;
+#if defined(I3C_SUPPORTED)
+    I3CBus   *dev_i3c;
+#endif
 
     /* Configuration */
+    uint32_t bus_type; /*0 means I2C, 1 means SPI 4-Wires, 2 means SPI-3-Wires, 3 means I3C */
     uint8_t  address;
     int      cs_pin;
     uint32_t spi_speed;
@@ -202,6 +242,10 @@ class ILPS22QSSensor {
     uint8_t is_initialized;
     uint8_t is_enabled;
     ilps22qs_md_t last_odr;
+#if defined(I3C_SUPPORTED)
+    uint8_t i3c_static7;
+    uint8_t i3c_dyn7;
+#endif
     ilps22qs_ctx_t reg_ctx;
 };
 
